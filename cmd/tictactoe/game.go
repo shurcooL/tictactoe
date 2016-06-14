@@ -51,6 +51,8 @@ func playGame(players [2]player) (ttt.Condition, error) {
 func playerTurn(b *ttt.Board, player player) error {
 	const timePerTurn = 3 * time.Second
 
+	started := time.Now()
+
 	move, err := playerMove(*b, player, timePerTurn)
 	if err != nil {
 		return fmt.Errorf("player %v (%s) failed to make a move: %v", player.Mark, player.Name(), err)
@@ -63,6 +65,9 @@ func playerTurn(b *ttt.Board, player player) error {
 	if err != nil {
 		return fmt.Errorf("player %v (%s) made a move that isn't legal: %v", player.Mark, player.Name(), err)
 	}
+
+	time.Sleep(time.Second - time.Since(started))
+
 	return nil
 }
 
@@ -79,8 +84,13 @@ func playerMove(b ttt.Board, p player, timeout time.Duration) (ttt.Move, error) 
 
 	// We can't trust the player not to misbehave and just ignore the timeout, causing
 	// the game to stall. So we let it play inside a goroutine, and monitor ctx.Done()
-	// channel ourselves. No one wants a slowpoke to hold the game up! :)
+	// channel ourselves. No one wants a slowpoke to hold the game up! :) Also catch panics.
 	go func() {
+		defer func() {
+			if e := recover(); e != nil {
+				resultCh <- moveError{err: fmt.Errorf("panic: %v", e)}
+			}
+		}()
 		move, err := p.Play(ctx, b)
 		resultCh <- moveError{move, err}
 	}()
