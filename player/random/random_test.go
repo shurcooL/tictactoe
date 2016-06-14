@@ -4,12 +4,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/shurcooL/play/187/player/random"
-	ttt "github.com/shurcooL/play/187/tictactoe"
+	ttt "github.com/shurcooL/tictactoe"
+	"github.com/shurcooL/tictactoe/player/random"
 	"golang.org/x/net/context"
 )
-
-var _ ttt.Player = random.NewPlayer()
 
 func Test(t *testing.T) {
 	// This board has only one free cell, so there's only one legal move.
@@ -22,7 +20,10 @@ func Test(t *testing.T) {
 	}
 	want := ttt.Move(4)
 
-	player := random.NewPlayer()
+	player, err := random.NewPlayer()
+	if err != nil {
+		t.Fatal(err)
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond)
 	move, err := player.Play(ctx, b)
 	cancel()

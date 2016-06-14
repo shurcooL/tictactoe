@@ -5,7 +5,7 @@ import (
 	"html/template"
 
 	"github.com/shurcooL/htmlg"
-	ttt "github.com/shurcooL/play/187/tictactoe"
+	ttt "github.com/shurcooL/tictactoe"
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
 )
@@ -16,12 +16,28 @@ type Component interface {
 
 // page renders the entire page body.
 type page struct {
-	board     ttt.Board
-	condition ttt.Condition
-	players   [2]player
+	board        ttt.Board
+	condition    ttt.Condition
+	errorMessage string
+	players      [2]player
 }
 
 func (p page) Render() []*html.Node {
+	var statusMessage *html.Node
+	switch {
+	case p.errorMessage != "":
+		statusMessage = style(
+			`line-height: 60px; text-align: center; color: red;`,
+			htmlg.Div(htmlg.Text(p.errorMessage)),
+		)
+	case p.condition != ttt.NotEnd:
+		statusMessage = style(
+			`line-height: 60px; text-align: center;`,
+			htmlg.Div(htmlg.Text(p.condition.String())),
+		)
+	default:
+		statusMessage = style(`height: 60px;`, htmlg.Div())
+	}
 	return []*html.Node{
 		style(
 			`text-align: center; margin-top: 50px;`,
@@ -33,8 +49,8 @@ func (p page) Render() []*html.Node {
 				),
 				// Board.
 				style(
-					`display: inline-block; vertical-align: top; margin-left: 30px; margin-right: 30px;`,
-					htmlg.Span(board{Board: p.board, Condition: p.condition}.Render()...),
+					`display: inline-block; margin-left: 30px; margin-right: 30px;`,
+					htmlg.Span(board{Board: p.board}.Render()...),
 				),
 				// Player O.
 				style(
@@ -43,9 +59,10 @@ func (p page) Render() []*html.Node {
 				),
 			),
 		),
+		statusMessage,
 		// Give credit to Renee French for the Go gopher.
 		style(
-			`text-align: right; font-style: italic; margin-top: 50px;`,
+			`text-align: right; font-style: italic;`,
 			htmlg.Div(htmlg.Text("Go gopher by Renee French.")),
 		),
 	}
@@ -54,7 +71,6 @@ func (p page) Render() []*html.Node {
 // board renders a board.
 type board struct {
 	ttt.Board
-	ttt.Condition
 }
 
 func (b board) Render() []*html.Node {
@@ -70,19 +86,8 @@ func (b board) Render() []*html.Node {
 		}
 		table.AppendChild(tr)
 	}
-	switch {
-	case b.Condition == ttt.NotEnd:
-		return []*html.Node{
-			table,
-		}
-	default:
-		return []*html.Node{
-			table,
-			style(
-				`text-align: center; margin-top: 5px;`,
-				htmlg.Div(htmlg.Text(b.Condition.String())),
-			),
-		}
+	return []*html.Node{
+		table,
 	}
 }
 

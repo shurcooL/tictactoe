@@ -6,22 +6,22 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/shurcooL/play/187/tictactoe"
+	"github.com/shurcooL/tictactoe"
 	"golang.org/x/net/context"
 )
 
 // NewPlayer creates a random player of tic-tac-toe.
-func NewPlayer() tictactoe.Player {
+func NewPlayer() (tictactoe.Player, error) {
 	gophers := []template.URL{
-		"https://raw.githubusercontent.com/shurcooL/play/master/187/player/random/gopher-0.png",
-		"https://raw.githubusercontent.com/shurcooL/play/master/187/player/random/gopher-1.png",
-		"https://raw.githubusercontent.com/shurcooL/play/master/187/player/random/gopher-2.png",
+		"https://raw.githubusercontent.com/shurcooL/tictactoe/master/player/random/gopher-0.png",
+		"https://raw.githubusercontent.com/shurcooL/tictactoe/master/player/random/gopher-1.png",
+		"https://raw.githubusercontent.com/shurcooL/tictactoe/master/player/random/gopher-2.png",
 	}
 	rand := rand.New(rand.NewSource(time.Now().UnixNano()))
 	return player{
 		rand:  rand,
 		image: gophers[rand.Intn(len(gophers))],
-	}
+	}, nil
 }
 
 // player is a random player of tic-tac-toe.
