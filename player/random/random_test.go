@@ -18,6 +18,7 @@ func Test(t *testing.T) {
 			ttt.O, ttt.X, ttt.O,
 		},
 	}
+	mark := ttt.X
 	want := ttt.Move(4)
 
 	player, err := random.NewPlayer()
@@ -25,7 +26,7 @@ func Test(t *testing.T) {
 		t.Fatal(err)
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond)
-	move, err := player.Play(ctx, b)
+	move, err := player.Play(ctx, b, mark)
 	cancel()
 	if err != nil {
 		t.Fatal(err)

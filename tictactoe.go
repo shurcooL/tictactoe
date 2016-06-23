@@ -14,10 +14,11 @@ type Player interface {
 	// Name of player.
 	Name() string
 
-	// Play takes a tic-tac-toe board b and returns the next move.
+	// Play takes a tic-tac-toe board b and returns the next move
+	// for this player. Its mark is either X or O.
 	// ctx is expected to have a deadline set, and Play may take time
 	// to "think" until deadline is reached before returning.
-	Play(ctx context.Context, b Board) (Move, error)
+	Play(ctx context.Context, b Board, mark State) (Move, error)
 }
 
 // Imager is an optional interface implemented by players

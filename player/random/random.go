@@ -38,10 +38,11 @@ func (p player) Image() template.URL {
 	return p.image
 }
 
-// Play takes a tic-tac-toe board b and returns the next move.
+// Play takes a tic-tac-toe board b and returns the next move
+// for this player. Its mark is either X or O.
 // ctx is expected to have a deadline set, and Play may take time
 // to "think" until deadline is reached before returning.
-func (p player) Play(ctx context.Context, b tictactoe.Board) (tictactoe.Move, error) {
+func (p player) Play(ctx context.Context, b tictactoe.Board, mark tictactoe.State) (tictactoe.Move, error) {
 	var legalMoves []tictactoe.Move
 	for i, cell := range b.Cells {
 		if cell != tictactoe.F {

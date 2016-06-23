@@ -91,7 +91,7 @@ func playerMove(b ttt.Board, p player, timeout time.Duration) (ttt.Move, error) 
 				resultCh <- moveError{err: fmt.Errorf("panic: %v", e)}
 			}
 		}()
-		move, err := p.Play(ctx, b)
+		move, err := p.Play(ctx, b, p.Mark)
 		resultCh <- moveError{move, err}
 	}()
 
