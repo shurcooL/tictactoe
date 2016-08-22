@@ -1,13 +1,13 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"runtime"
 	"time"
 
 	"github.com/shurcooL/htmlg"
 	ttt "github.com/shurcooL/tictactoe"
-	"golang.org/x/net/context"
 	"honnef.co/go/js/dom"
 )
 

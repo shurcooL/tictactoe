@@ -1,12 +1,12 @@
 package random_test
 
 import (
+	"context"
 	"testing"
 	"time"
 
 	ttt "github.com/shurcooL/tictactoe"
 	"github.com/shurcooL/tictactoe/player/random"
-	"golang.org/x/net/context"
 )
 
 func Test(t *testing.T) {

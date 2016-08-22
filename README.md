@@ -9,6 +9,15 @@ Installation
 go get -u github.com/shurcooL/tictactoe
 ```
 
+Directories
+-----------
+
+| Path                                                                           | Synopsis                                                  |
+|--------------------------------------------------------------------------------|-----------------------------------------------------------|
+| [cmd/tictactoe](https://godoc.org/github.com/shurcooL/tictactoe/cmd/tictactoe) | tictactoe plays a game of tic-tac-toe with two players.   |
+| [player/bad](https://godoc.org/github.com/shurcooL/tictactoe/player/bad)       | Package bad contains a bad tic-tac-toe player.            |
+| [player/random](https://godoc.org/github.com/shurcooL/tictactoe/player/random) | Package random implements a random player of tic-tac-toe. |
+
 License
 -------
 

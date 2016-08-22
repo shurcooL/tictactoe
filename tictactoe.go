@@ -3,10 +3,9 @@ package tictactoe
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"html/template"
-
-	"golang.org/x/net/context"
 )
 
 // Player of tic-tac-toe.

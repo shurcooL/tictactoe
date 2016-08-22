@@ -2,12 +2,12 @@
 package random
 
 import (
+	"context"
 	"html/template"
 	"math/rand"
 	"time"
 
 	"github.com/shurcooL/tictactoe"
-	"golang.org/x/net/context"
 )
 
 // NewPlayer creates a random player of tic-tac-toe.

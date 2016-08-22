@@ -2,11 +2,11 @@
 package bad
 
 import (
+	"context"
 	"fmt"
 	"time"
 
 	"github.com/shurcooL/tictactoe"
-	"golang.org/x/net/context"
 )
 
 // NewPlayer creates a bad player.
