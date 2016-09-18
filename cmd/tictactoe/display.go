@@ -10,10 +10,6 @@ import (
 	"golang.org/x/net/html/atom"
 )
 
-type Component interface {
-	Render() []*html.Node
-}
-
 // page renders the entire page body.
 type page struct {
 	board        ttt.Board
