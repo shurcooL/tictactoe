@@ -42,10 +42,11 @@ func (m Move) Validate() error {
 // State of a board cell.
 type State uint8
 
+// States of a board cell.
 const (
-	F State = iota // Free.
-	X
-	O
+	F State = iota // Free cell.
+	X              // Cell with an X mark.
+	O              // Cell with an O mark.
 )
 
 func (s State) String() string {
@@ -64,6 +65,7 @@ func (s State) String() string {
 // Condition of the board configuration.
 type Condition uint8
 
+// Conditions of the board configuration.
 const (
 	NotEnd Condition = iota
 	XWon
@@ -106,6 +108,7 @@ func (b *Board) Apply(move Move, mark State) error {
 	return nil
 }
 
+// Condition returns the condition of the board.
 func (b Board) Condition() Condition {
 	var (
 		x = (b.Cells[0] == X && b.Cells[1] == X && b.Cells[2] == X) || // Check all rows.
