@@ -52,7 +52,7 @@ func (p player) Play(ctx context.Context, b tictactoe.Board, mark tictactoe.Stat
 	}
 
 	if deadline, ok := ctx.Deadline(); ok {
-		time.Sleep(deadline.Sub(time.Now()) - 1*time.Second)
+		time.Sleep(time.Until(deadline) - 1*time.Second)
 	} else {
 		time.Sleep(2 * time.Second)
 	}
