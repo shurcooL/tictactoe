@@ -20,7 +20,7 @@ func playGame(players [2]player) (ttt.Condition, error) {
 	fmt.Println(board)
 	if runtime.GOARCH == "js" {
 		var document = dom.GetWindow().Document().(dom.HTMLDocument)
-		document.Body().SetInnerHTML(string(htmlg.Render(page{board: board, players: players}.Render()...)))
+		document.Body().SetInnerHTML(htmlg.Render(page{board: board, players: players}.Render()...))
 	}
 
 	for i := 0; ; i++ {
@@ -28,7 +28,7 @@ func playGame(players [2]player) (ttt.Condition, error) {
 		if err != nil {
 			if runtime.GOARCH == "js" {
 				var document = dom.GetWindow().Document().(dom.HTMLDocument)
-				document.Body().SetInnerHTML(string(htmlg.Render(page{board: board, errorMessage: err.Error(), players: players}.Render()...)))
+				document.Body().SetInnerHTML(htmlg.Render(page{board: board, errorMessage: err.Error(), players: players}.Render()...))
 			}
 			return 0, err
 		}
@@ -38,7 +38,7 @@ func playGame(players [2]player) (ttt.Condition, error) {
 		fmt.Println(board)
 		if runtime.GOARCH == "js" {
 			var document = dom.GetWindow().Document().(dom.HTMLDocument)
-			document.Body().SetInnerHTML(string(htmlg.Render(page{board: board, condition: condition, players: players}.Render()...)))
+			document.Body().SetInnerHTML(htmlg.Render(page{board: board, condition: condition, players: players}.Render()...))
 		}
 
 		if condition != ttt.NotEnd {
