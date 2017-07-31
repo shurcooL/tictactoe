@@ -75,9 +75,7 @@ func (b board) Render() []*html.Node {
 		tr := &html.Node{Data: atom.Tr.String(), Type: html.ElementNode}
 		for _, cell := range b.Cells[3*row : 3*row+3] {
 			td := &html.Node{Data: atom.Td.String(), Type: html.ElementNode}
-			for _, n := range (boardCell{cell}.Render()) {
-				td.AppendChild(n)
-			}
+			htmlg.AppendChildren(td, boardCell{cell}.Render()...)
 			tr.AppendChild(td)
 		}
 		table.AppendChild(tr)
