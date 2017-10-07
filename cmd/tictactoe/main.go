@@ -37,12 +37,12 @@ func run() {
 		log.Fatalln(fmt.Errorf("failed to initialize player O: %v", err))
 	}
 
-	fmt.Println("Tic Tac Toe")
+	fmt.Println("Tic-Tac-Toe")
 	fmt.Println()
 	fmt.Printf("%v (X) vs %v (O)\n", playerX.Name(), playerO.Name())
 	if runtime.GOARCH == "js" {
 		var document = dom.GetWindow().Document().(dom.HTMLDocument)
-		document.SetTitle("Tic Tac Toe")
+		document.SetTitle("Tic-Tac-Toe")
 	}
 
 	endCondition, err := playGame([2]player{playerX, playerO})
