@@ -28,6 +28,14 @@ type Imager interface {
 	Image() template.URL
 }
 
+// CellClicker is an optional interface implemented by players
+// that wish to be notified about cell clicks.
+type CellClicker interface {
+	// CellClick is called when cell with
+	// specified index is clicked.
+	CellClick(index int)
+}
+
 // Move is the board cell index where to place one's mark, a value in range [0, 9).
 type Move int
 

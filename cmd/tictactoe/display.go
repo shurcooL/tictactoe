@@ -73,9 +73,9 @@ func (b board) Render() []*html.Node {
 	table := &html.Node{Data: atom.Table.String(), Type: html.ElementNode}
 	for row := 0; row < 3; row++ {
 		tr := &html.Node{Data: atom.Tr.String(), Type: html.ElementNode}
-		for _, cell := range b.Cells[3*row : 3*row+3] {
+		for col, cell := range b.Cells[3*row : 3*row+3] {
 			td := &html.Node{Data: atom.Td.String(), Type: html.ElementNode}
-			htmlg.AppendChildren(td, boardCell{cell}.Render()...)
+			htmlg.AppendChildren(td, boardCell{State: cell, Index: 3*row + col}.Render()...)
 			tr.AppendChild(td)
 		}
 		table.AppendChild(tr)
@@ -86,15 +86,26 @@ func (b board) Render() []*html.Node {
 }
 
 // boardCell renders a board cell.
-type boardCell struct{ ttt.State }
+type boardCell struct {
+	ttt.State
+	Index int
+}
 
 func (c boardCell) Render() []*html.Node {
-	return []*html.Node{style(
-		`display: table-cell; width: 30px; height: 30px; text-align: center; vertical-align: middle; background-color: #f4f4f4;`,
-		htmlg.Div(
-			htmlg.Text(c.String()),
+	cell := &html.Node{
+		Type: html.ElementNode, Data: atom.A.String(),
+		Attr: []html.Attribute{
+			{Key: atom.Style.String(), Val: "cursor: pointer;"},
+			{Key: atom.Onclick.String(), Val: fmt.Sprintf("CellClick(%d);", c.Index)},
+		},
+		FirstChild: style(
+			`display: table-cell; width: 30px; height: 30px; text-align: center; vertical-align: middle; background-color: #f4f4f4;`,
+			htmlg.Div(
+				htmlg.Text(c.String()),
+			),
 		),
-	)}
+	}
+	return []*html.Node{cell}
 }
 
 // Render the player.

@@ -6,6 +6,7 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/gopherjs/gopherjs/js"
 	"github.com/shurcooL/htmlg"
 	ttt "github.com/shurcooL/tictactoe"
 	"honnef.co/go/js/dom"
@@ -16,6 +17,19 @@ import (
 func playGame(players [2]player) (ttt.Condition, error) {
 	var board ttt.Board // Start with an empty board.
 
+	// When a board cell is clicked, its [0, 9) index is sent to this channel.
+	var cellClick chan int
+
+	if runtime.GOARCH == "js" {
+		cellClick = make(chan int)
+		js.Global.Set("CellClick", func(index int) {
+			select {
+			case cellClick <- index:
+			default:
+			}
+		})
+	}
+
 	fmt.Println()
 	fmt.Println(board)
 	if runtime.GOARCH == "js" {
@@ -24,7 +38,7 @@ func playGame(players [2]player) (ttt.Condition, error) {
 	}
 
 	for i := 0; ; i++ {
-		err := playerTurn(&board, players[i%2])
+		err := playerTurn(&board, players[i%2], cellClick)
 		if err != nil {
 			if runtime.GOARCH == "js" {
 				var document = dom.GetWindow().Document().(dom.HTMLDocument)
@@ -48,12 +62,12 @@ func playGame(players [2]player) (ttt.Condition, error) {
 }
 
 // playerTurn gets the player p's move and applies it to board b.
-func playerTurn(b *ttt.Board, player player) error {
+func playerTurn(b *ttt.Board, player player, cellClick <-chan int) error {
 	const timePerTurn = 3 * time.Second
 
 	started := time.Now()
 
-	move, err := playerMove(*b, player, timePerTurn)
+	move, err := playerMove(*b, player, timePerTurn, cellClick)
 	if err != nil {
 		return fmt.Errorf("player %v (%s) failed to make a move: %v", player.Mark, player.Name(), err)
 	}
@@ -66,13 +80,14 @@ func playerTurn(b *ttt.Board, player player) error {
 		return fmt.Errorf("player %v (%s) made a move that isn't legal: %v", player.Mark, player.Name(), err)
 	}
 
+	// Enforce a minimum of 1 second per move.
 	time.Sleep(time.Second - time.Since(started))
 
 	return nil
 }
 
 // playerMove gets the player p's move, enforcing the timeout.
-func playerMove(b ttt.Board, p player, timeout time.Duration) (ttt.Move, error) {
+func playerMove(b ttt.Board, p player, timeout time.Duration, cellClick <-chan int) (ttt.Move, error) {
 	type moveError struct {
 		ttt.Move
 		err error
@@ -95,11 +110,16 @@ func playerMove(b ttt.Board, p player, timeout time.Duration) (ttt.Move, error) 
 		resultCh <- moveError{move, err}
 	}()
 
-	var result moveError
-	select {
-	case result = <-resultCh:
-		return result.Move, result.err
-	case <-ctx.Done():
-		return 0, fmt.Errorf("took more than allotted time of %v", timeout)
+	for {
+		select {
+		case result := <-resultCh:
+			return result.Move, result.err
+		case index := <-cellClick:
+			if p, ok := p.Player.(ttt.CellClicker); ok {
+				p.CellClick(index)
+			}
+		case <-ctx.Done():
+			return 0, fmt.Errorf("took more than allotted time of %v", timeout)
+		}
 	}
 }
