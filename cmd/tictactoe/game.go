@@ -38,7 +38,7 @@ func playGame(players [2]player) (ttt.Condition, error) {
 		if runtime.GOARCH == "js" {
 			var document = dom.GetWindow().Document().(dom.HTMLDocument)
 			_, isCellClicker := players[i].Player.(ttt.CellClicker)
-			document.Body().SetInnerHTML(htmlg.Render(page{board: board, turn: players[i].Mark, clickable: isCellClicker, condition: condition, players: players}.Render()...))
+			document.Body().SetInnerHTML(htmlg.Render(page{Board: board, Turn: players[i].Mark, Clickable: isCellClicker, Condition: condition, Players: players}.Render()...))
 		}
 
 		turnStart := time.Now()
@@ -47,7 +47,7 @@ func playGame(players [2]player) (ttt.Condition, error) {
 		if err != nil {
 			if runtime.GOARCH == "js" {
 				var document = dom.GetWindow().Document().(dom.HTMLDocument)
-				document.Body().SetInnerHTML(htmlg.Render(page{board: board, errorMessage: err.Error(), players: players}.Render()...))
+				document.Body().SetInnerHTML(htmlg.Render(page{Board: board, ErrorMessage: err.Error(), Players: players}.Render()...))
 			}
 			return 0, err
 		}
@@ -58,7 +58,7 @@ func playGame(players [2]player) (ttt.Condition, error) {
 		if untilTurnEnd := time.Second - time.Since(turnStart); condition == ttt.NotEnd && untilTurnEnd > 0 {
 			if runtime.GOARCH == "js" {
 				var document = dom.GetWindow().Document().(dom.HTMLDocument)
-				document.Body().SetInnerHTML(htmlg.Render(page{board: board, condition: condition, players: players}.Render()...))
+				document.Body().SetInnerHTML(htmlg.Render(page{Board: board, Condition: condition, Players: players}.Render()...))
 			}
 
 			time.Sleep(untilTurnEnd)
@@ -70,7 +70,7 @@ func playGame(players [2]player) (ttt.Condition, error) {
 	fmt.Println(board)
 	if runtime.GOARCH == "js" {
 		var document = dom.GetWindow().Document().(dom.HTMLDocument)
-		document.Body().SetInnerHTML(htmlg.Render(page{board: board, condition: condition, players: players}.Render()...))
+		document.Body().SetInnerHTML(htmlg.Render(page{Board: board, Condition: condition, Players: players}.Render()...))
 	}
 
 	return condition, nil

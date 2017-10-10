@@ -12,26 +12,26 @@ import (
 
 // page renders the entire page body.
 type page struct {
-	board        ttt.Board
-	turn         ttt.State
-	clickable    bool
-	condition    ttt.Condition
-	errorMessage string
-	players      [2]player
+	Board        ttt.Board
+	Turn         ttt.State
+	Clickable    bool
+	Condition    ttt.Condition
+	ErrorMessage string
+	Players      [2]player
 }
 
 func (p page) Render() []*html.Node {
 	var statusMessage *html.Node
 	switch {
-	case p.errorMessage != "":
+	case p.ErrorMessage != "":
 		statusMessage = style(
 			`line-height: 60px; text-align: center; color: red;`,
-			htmlg.Div(htmlg.Text(p.errorMessage)),
+			htmlg.Div(htmlg.Text(p.ErrorMessage)),
 		)
-	case p.condition != ttt.NotEnd:
+	case p.Condition != ttt.NotEnd:
 		statusMessage = style(
 			`line-height: 60px; text-align: center;`,
-			htmlg.Div(htmlg.Text(p.condition.String())),
+			htmlg.Div(htmlg.Text(p.Condition.String())),
 		)
 	default:
 		statusMessage = style(`height: 60px;`, htmlg.Div())
@@ -43,17 +43,17 @@ func (p page) Render() []*html.Node {
 				// Player X.
 				style(
 					`display: inline-block; width: 200px;`,
-					htmlg.Span(p.players[0].Render(p.turn)...),
+					htmlg.Span(p.Players[0].Render(p.Turn)...),
 				),
 				// Board.
 				style(
 					`display: inline-block; margin-left: 30px; margin-right: 30px;`,
-					htmlg.Span(board{Board: p.board, Clickable: p.clickable}.Render()...),
+					htmlg.Span(board{Board: p.Board, Clickable: p.Clickable}.Render()...),
 				),
 				// Player O.
 				style(
 					`display: inline-block; width: 200px;`,
-					htmlg.Span(p.players[1].Render(p.turn)...),
+					htmlg.Span(p.Players[1].Render(p.Turn)...),
 				),
 			),
 		),
