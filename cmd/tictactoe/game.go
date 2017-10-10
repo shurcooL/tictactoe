@@ -32,17 +32,18 @@ func playGame(players [2]player) (ttt.Condition, error) {
 	var board ttt.Board
 	var condition ttt.Condition
 
-	for i := 0; condition == ttt.NotEnd; i++ {
+	for i := 0; condition == ttt.NotEnd; i = (i + 1) % 2 {
 		fmt.Println()
 		fmt.Println(board)
 		if runtime.GOARCH == "js" {
 			var document = dom.GetWindow().Document().(dom.HTMLDocument)
-			document.Body().SetInnerHTML(htmlg.Render(page{board: board, turn: players[i%2].Mark, condition: condition, players: players}.Render()...))
+			_, isCellClicker := players[i].Player.(ttt.CellClicker)
+			document.Body().SetInnerHTML(htmlg.Render(page{board: board, turn: players[i].Mark, clickable: isCellClicker, condition: condition, players: players}.Render()...))
 		}
 
 		turnStart := time.Now()
 
-		err := playerTurn(&board, players[i%2], cellClick)
+		err := playerTurn(&board, players[i], cellClick)
 		if err != nil {
 			if runtime.GOARCH == "js" {
 				var document = dom.GetWindow().Document().(dom.HTMLDocument)

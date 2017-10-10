@@ -14,6 +14,7 @@ import (
 type page struct {
 	board        ttt.Board
 	turn         ttt.State
+	clickable    bool
 	condition    ttt.Condition
 	errorMessage string
 	players      [2]player
@@ -47,7 +48,7 @@ func (p page) Render() []*html.Node {
 				// Board.
 				style(
 					`display: inline-block; margin-left: 30px; margin-right: 30px;`,
-					htmlg.Span(board{Board: p.board}.Render()...),
+					htmlg.Span(board{Board: p.board, Clickable: p.clickable}.Render()...),
 				),
 				// Player O.
 				style(
@@ -68,6 +69,7 @@ func (p page) Render() []*html.Node {
 // board renders a board.
 type board struct {
 	ttt.Board
+	Clickable bool
 }
 
 func (b board) Render() []*html.Node {
@@ -76,7 +78,7 @@ func (b board) Render() []*html.Node {
 		tr := &html.Node{Data: atom.Tr.String(), Type: html.ElementNode}
 		for col, cell := range b.Cells[3*row : 3*row+3] {
 			td := &html.Node{Data: atom.Td.String(), Type: html.ElementNode}
-			htmlg.AppendChildren(td, boardCell{State: cell, Index: 3*row + col}.Render()...)
+			htmlg.AppendChildren(td, boardCell{State: cell, Clickable: b.Clickable, Index: 3*row + col}.Render()...)
 			tr.AppendChild(td)
 		}
 		table.AppendChild(tr)
@@ -89,22 +91,26 @@ func (b board) Render() []*html.Node {
 // boardCell renders a board cell.
 type boardCell struct {
 	ttt.State
-	Index int
+	Clickable bool
+	Index     int
 }
 
 func (c boardCell) Render() []*html.Node {
-	cell := &html.Node{
-		Type: html.ElementNode, Data: atom.A.String(),
-		Attr: []html.Attribute{
-			{Key: atom.Style.String(), Val: "cursor: pointer;"},
-			{Key: atom.Onclick.String(), Val: fmt.Sprintf("CellClick(%d);", c.Index)},
-		},
-		FirstChild: style(
-			`display: table-cell; width: 30px; height: 30px; text-align: center; vertical-align: middle; background-color: #f4f4f4;`,
-			htmlg.Div(
-				htmlg.Text(c.String()),
-			),
+	cell := style(
+		`display: table-cell; width: 30px; height: 30px; text-align: center; vertical-align: middle; background-color: #f4f4f4;`,
+		htmlg.Div(
+			htmlg.Text(c.String()),
 		),
+	)
+	if c.Clickable {
+		cell = &html.Node{
+			Type: html.ElementNode, Data: atom.A.String(),
+			Attr: []html.Attribute{
+				{Key: atom.Style.String(), Val: `display: block; cursor: pointer;`},
+				{Key: atom.Onclick.String(), Val: fmt.Sprintf(`CellClick(%d);`, c.Index)},
+			},
+			FirstChild: cell,
+		}
 	}
 	return []*html.Node{cell}
 }
