@@ -13,6 +13,7 @@ import (
 // page renders the entire page body.
 type page struct {
 	board        ttt.Board
+	turn         ttt.State
 	condition    ttt.Condition
 	errorMessage string
 	players      [2]player
@@ -40,8 +41,8 @@ func (p page) Render() []*html.Node {
 			htmlg.Div(
 				// Player X.
 				style(
-					`display: inline-block;`,
-					htmlg.Span(p.players[0].Render()...),
+					`display: inline-block; width: 200px;`,
+					htmlg.Span(p.players[0].Render(p.turn)...),
 				),
 				// Board.
 				style(
@@ -50,8 +51,8 @@ func (p page) Render() []*html.Node {
 				),
 				// Player O.
 				style(
-					`display: inline-block;`,
-					htmlg.Span(p.players[1].Render()...),
+					`display: inline-block; width: 200px;`,
+					htmlg.Span(p.players[1].Render(p.turn)...),
 				),
 			),
 		),
@@ -108,10 +109,10 @@ func (c boardCell) Render() []*html.Node {
 	return []*html.Node{cell}
 }
 
-// Render the player.
-func (p player) Render() []*html.Node {
-	switch imager, ok := p.Player.(ttt.Imager); {
-	case ok:
+// Render the player. turn indicates whose turn it currently is.
+func (p player) Render(turn ttt.State) []*html.Node {
+	switch imager, ok := p.Player.(ttt.Imager); ok {
+	case true:
 		var imgStyle string
 		switch p.Mark {
 		case ttt.X:
@@ -119,17 +120,33 @@ func (p player) Render() []*html.Node {
 		case ttt.O:
 			imgStyle = `height: 100px; transform: scaleX(-1);`
 		}
+		text := htmlg.Text(fmt.Sprintf("%v (%v)", p.Name(), p.Mark))
+		if p.Mark == turn {
+			text = &html.Node{
+				Type: html.ElementNode, Data: atom.Strong.String(),
+				FirstChild: text,
+			}
+		}
 		return []*html.Node{
 			style(
 				imgStyle,
 				img(imager.Image()),
 			),
-			htmlg.Div(htmlg.Text(fmt.Sprintf("%v (%v)", p.Name(), p.Mark))),
+			htmlg.Div(text),
+		}
+	case false:
+		text := htmlg.Text(fmt.Sprintf("%v (%v)", p.Name(), p.Mark))
+		if p.Mark == turn {
+			text = &html.Node{
+				Type: html.ElementNode, Data: atom.Strong.String(),
+				FirstChild: text,
+			}
+		}
+		return []*html.Node{
+			text,
 		}
 	default:
-		return []*html.Node{
-			htmlg.Text(fmt.Sprintf("%v (%v)", p.Name(), p.Mark)),
-		}
+		panic("unreachable")
 	}
 }
 

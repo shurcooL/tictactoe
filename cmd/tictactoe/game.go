@@ -15,8 +15,6 @@ import (
 // playGame plays a game of tic-tac-toe with 2 players until the end (Condition != ttt.NotEnd),
 // or until an error happens. players[0] always goes first.
 func playGame(players [2]player) (ttt.Condition, error) {
-	var board ttt.Board // Start with an empty board.
-
 	// When a board cell is clicked, its [0, 9) index is sent to this channel.
 	var cellClick chan int
 
@@ -30,14 +28,20 @@ func playGame(players [2]player) (ttt.Condition, error) {
 		})
 	}
 
-	fmt.Println()
-	fmt.Println(board)
-	if runtime.GOARCH == "js" {
-		var document = dom.GetWindow().Document().(dom.HTMLDocument)
-		document.Body().SetInnerHTML(htmlg.Render(page{board: board, players: players}.Render()...))
-	}
+	// Start with an empty board.
+	var board ttt.Board
+	var condition ttt.Condition
 
-	for i := 0; ; i++ {
+	for i := 0; condition == ttt.NotEnd; i++ {
+		fmt.Println()
+		fmt.Println(board)
+		if runtime.GOARCH == "js" {
+			var document = dom.GetWindow().Document().(dom.HTMLDocument)
+			document.Body().SetInnerHTML(htmlg.Render(page{board: board, turn: players[i%2].Mark, condition: condition, players: players}.Render()...))
+		}
+
+		turnStart := time.Now()
+
 		err := playerTurn(&board, players[i%2], cellClick)
 		if err != nil {
 			if runtime.GOARCH == "js" {
@@ -46,26 +50,34 @@ func playGame(players [2]player) (ttt.Condition, error) {
 			}
 			return 0, err
 		}
-		condition := board.Condition()
 
-		fmt.Println()
-		fmt.Println(board)
-		if runtime.GOARCH == "js" {
-			var document = dom.GetWindow().Document().(dom.HTMLDocument)
-			document.Body().SetInnerHTML(htmlg.Render(page{board: board, condition: condition, players: players}.Render()...))
-		}
+		condition = board.Condition()
 
-		if condition != ttt.NotEnd {
-			return condition, nil
+		// Enforce a minimum of 1 second per turn.
+		if untilTurnEnd := time.Second - time.Since(turnStart); condition == ttt.NotEnd && untilTurnEnd > 0 {
+			if runtime.GOARCH == "js" {
+				var document = dom.GetWindow().Document().(dom.HTMLDocument)
+				document.Body().SetInnerHTML(htmlg.Render(page{board: board, condition: condition, players: players}.Render()...))
+			}
+
+			time.Sleep(untilTurnEnd)
 		}
 	}
+
+	// At this point, the game is over.
+	fmt.Println()
+	fmt.Println(board)
+	if runtime.GOARCH == "js" {
+		var document = dom.GetWindow().Document().(dom.HTMLDocument)
+		document.Body().SetInnerHTML(htmlg.Render(page{board: board, condition: condition, players: players}.Render()...))
+	}
+
+	return condition, nil
 }
 
 // playerTurn gets the player p's move and applies it to board b.
 func playerTurn(b *ttt.Board, player player, cellClick <-chan int) error {
 	const timePerTurn = 3 * time.Second
-
-	started := time.Now()
 
 	move, err := playerMove(*b, player, timePerTurn, cellClick)
 	if err != nil {
@@ -79,9 +91,6 @@ func playerTurn(b *ttt.Board, player player, cellClick <-chan int) error {
 	if err != nil {
 		return fmt.Errorf("player %v (%s) made a move that isn't legal: %v", player.Mark, player.Name(), err)
 	}
-
-	// Enforce a minimum of 1 second per move.
-	time.Sleep(time.Second - time.Since(started))
 
 	return nil
 }
