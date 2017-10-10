@@ -18,9 +18,16 @@ import (
 	playero "github.com/shurcooL/tictactoe/player/random"
 )
 
-type player struct {
-	ttt.Player
-	Mark ttt.State // Mark is either X or O.
+func main() {
+	switch runtime.GOARCH {
+	default:
+		run()
+	case "js":
+		var document = dom.GetWindow().Document().(dom.HTMLDocument)
+		document.AddEventListener("DOMContentLoaded", false, func(dom.Event) {
+			go run()
+		})
+	}
 }
 
 func run() {
@@ -64,14 +71,7 @@ func run() {
 	}
 }
 
-func main() {
-	switch runtime.GOARCH {
-	default:
-		run()
-	case "js":
-		var document = dom.GetWindow().Document().(dom.HTMLDocument)
-		document.AddEventListener("DOMContentLoaded", false, func(dom.Event) {
-			go run()
-		})
-	}
+type player struct {
+	ttt.Player
+	Mark ttt.State // Mark is either X or O.
 }
