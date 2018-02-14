@@ -24,9 +24,16 @@ func main() {
 		run()
 	case "js":
 		var document = dom.GetWindow().Document().(dom.HTMLDocument)
-		document.AddEventListener("DOMContentLoaded", false, func(dom.Event) {
-			go run()
-		})
+		switch readyState := document.ReadyState(); readyState {
+		case "loading":
+			document.AddEventListener("DOMContentLoaded", false, func(dom.Event) {
+				go run()
+			})
+		case "interactive", "complete":
+			run()
+		default:
+			panic(fmt.Errorf("internal error: unexpected document.ReadyState value: %v", readyState))
+		}
 	}
 }
 
