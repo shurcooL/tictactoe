@@ -3,6 +3,7 @@ package random
 
 import (
 	"context"
+	"fmt"
 	"html/template"
 	"math/rand"
 	"time"
@@ -43,19 +44,36 @@ func (p player) Image() template.URL {
 // ctx is expected to have a deadline set, and Play may take time
 // to "think" until deadline is reached before returning.
 func (p player) Play(ctx context.Context, b tictactoe.Board, mark tictactoe.State) (tictactoe.Move, error) {
-	var legalMoves []tictactoe.Move
+	if b.Condition() != tictactoe.NotEnd {
+		return tictactoe.Move(-1), fmt.Errorf("board has a finished game")
+	}
+
+	stopThinking := time.Now().Add(2 * time.Second)
+	if t, ok := ctx.Deadline(); ok {
+		t = t.Add(-time.Second)
+		if t.Before(stopThinking) {
+			stopThinking = t
+		}
+	}
+
+	// Decide on a move to make... using randomness!
+	legalMoves := legalMoves(b)
+	move := legalMoves[p.rand.Intn(len(legalMoves))]
+
+	// Take some more time to pretend we're still "thinking".
+	time.Sleep(time.Until(stopThinking))
+
+	return move, nil
+}
+
+// legalMoves returns all legal moves on board b.
+func legalMoves(b tictactoe.Board) []tictactoe.Move {
+	var moves []tictactoe.Move
 	for i, cell := range b.Cells {
 		if cell != tictactoe.F {
 			continue
 		}
-		legalMoves = append(legalMoves, tictactoe.Move(i))
+		moves = append(moves, tictactoe.Move(i))
 	}
-
-	if deadline, ok := ctx.Deadline(); ok {
-		time.Sleep(time.Until(deadline) - 1*time.Second)
-	} else {
-		time.Sleep(2 * time.Second)
-	}
-
-	return legalMoves[p.rand.Intn(len(legalMoves))], nil
+	return moves
 }

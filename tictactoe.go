@@ -39,9 +39,10 @@ type CellClicker interface {
 // Move is the board cell index where to place one's mark, a value in range [0, 9).
 type Move int
 
-// Validate reports if the move is valid. It may not be legal depending on the board configuration.
-func (m Move) Validate() error {
-	if valid := m >= 0 && m < 9; !valid {
+// Valid reports if the move is valid. It may not be legal depending on the board configuration.
+func (m Move) Valid() error {
+	ok := m >= 0 && m < 9
+	if !ok {
 		return fmt.Errorf("move %v is out of range [0, 9)", m)
 	}
 	return nil
