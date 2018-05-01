@@ -15,7 +15,7 @@ import (
 import (
 	playerx "github.com/shurcooL/tictactoe/player/random"
 	// vs
-	playero "github.com/shurcooL/tictactoe/player/random"
+	playero "github.com/shurcooL/tictactoe/player/perfect"
 )
 
 func main() {
