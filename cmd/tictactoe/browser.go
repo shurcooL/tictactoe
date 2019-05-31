@@ -1,14 +1,69 @@
+// +build js
+
 package main
 
 import (
 	"fmt"
 	"html/template"
+	"syscall/js"
 
 	"github.com/shurcooL/htmlg"
 	ttt "github.com/shurcooL/tictactoe"
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
+	"honnef.co/go/js/dom/v2"
 )
+
+var document = dom.GetWindow().Document().(dom.HTMLDocument)
+
+func main() {
+	switch readyState := document.ReadyState(); readyState {
+	case "loading":
+		document.AddEventListener("DOMContentLoaded", false, func(dom.Event) {
+			go run()
+		})
+	case "interactive", "complete":
+		run()
+	default:
+		panic(fmt.Errorf("internal error: unexpected document.ReadyState value: %v", readyState))
+	}
+	select {}
+}
+
+func displayGameStart(board ttt.Board, players [2]player, cellClick chan<- int) {
+	document.SetTitle("Tic-Tac-Toe")
+
+	// When a board cell is clicked, send its [0, 9) index to cellClick channel.
+	js.Global().Set("CellClick", js.FuncOf(func(_ js.Value, args []js.Value) interface{} {
+		index := args[0].Int()
+		select {
+		case cellClick <- index:
+		default:
+		}
+		return nil
+	}))
+}
+
+func displayTurnStart(board ttt.Board, players [2]player, active player, condition ttt.Condition) {
+	// Draw page at start of turn.
+	_, isCellClicker := active.Player.(ttt.CellClicker)
+	document.Body().SetInnerHTML(htmlg.Render(page{Board: board, Turn: active.Mark, Clickable: isCellClicker, Condition: condition, Players: players}.Render()...))
+}
+
+func displayTurnEnding(board ttt.Board, players [2]player, condition ttt.Condition) {
+	// Draw page after player finished turn.
+	document.Body().SetInnerHTML(htmlg.Render(page{Board: board, Condition: condition, Players: players}.Render()...))
+}
+
+func displayGameEnd(board ttt.Board, players [2]player, condition ttt.Condition) {
+	// Draw page at end of game.
+	document.Body().SetInnerHTML(htmlg.Render(page{Board: board, Condition: condition, Players: players}.Render()...))
+}
+
+func displayError(board ttt.Board, players [2]player, err error) {
+	// Draw page on error.
+	document.Body().SetInnerHTML(htmlg.Render(page{Board: board, ErrorMessage: err.Error(), Players: players}.Render()...))
+}
 
 // page renders the entire page body.
 type page struct {

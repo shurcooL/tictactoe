@@ -1,89 +1,84 @@
+// tictactoe plays a game of tic-tac-toe with two players.
+//
+// It's just for fun, a learning exercise.
 package main
 
 import (
 	"context"
 	"fmt"
-	"runtime"
+	"log"
 	"time"
 
-	"github.com/gopherjs/gopherjs/js"
-	"github.com/shurcooL/htmlg"
 	ttt "github.com/shurcooL/tictactoe"
-	"honnef.co/go/js/dom"
+)
+
+import (
+	playerx "github.com/shurcooL/tictactoe/player/random"
+	// vs
+	playero "github.com/shurcooL/tictactoe/player/perfect"
 )
 
 // timePerTurn is the time each player gets to think per turn.
 const timePerTurn = 5 * time.Second
 
-// playGame plays a game of tic-tac-toe with 2 players until the end (Condition != ttt.NotEnd),
-// or until an error happens. players[0] always goes first.
-func playGame(players [2]player) (ttt.Condition, error) {
-	// When a board cell is clicked, its [0, 9) index is sent to this channel.
-	var cellClick chan int
+func run() {
+	playerX := player{Mark: ttt.X}
+	playerO := player{Mark: ttt.O}
 
-	if runtime.GOARCH == "js" {
-		cellClick = make(chan int)
-		js.Global.Set("CellClick", func(index int) {
-			select {
-			case cellClick <- index:
-			default:
-			}
-		})
+	var err error
+	playerX.Player, err = playerx.NewPlayer()
+	if err != nil {
+		log.Fatalln(fmt.Errorf("failed to initialize player X: %v", err))
+	}
+	playerO.Player, err = playero.NewPlayer()
+	if err != nil {
+		log.Fatalln(fmt.Errorf("failed to initialize player O: %v", err))
 	}
 
+	simulateGame([2]player{playerX, playerO})
+}
+
+type player struct {
+	ttt.Player
+	Mark ttt.State // Mark is either X or O.
+}
+
+// simulateGame simulates a playthrough of a game of tic-tac-toe with 2 players
+// until the end (Condition != ttt.NotEnd), or until an error happens.
+// players[0] always goes first.
+func simulateGame(players [2]player) {
 	// Start with an empty board.
 	var board ttt.Board
 	var condition ttt.Condition
 
-	fmt.Println()
-	fmt.Println(board)
+	// When a board cell is clicked, its [0, 9) index is sent to this channel.
+	cellClick := make(chan int)
+
+	displayGameStart(board, players, cellClick)
 
 	for i := 0; condition == ttt.NotEnd; i = (i + 1) % 2 {
-		if runtime.GOARCH == "js" {
-			// Draw page at start of turn.
-			var document = dom.GetWindow().Document().(dom.HTMLDocument)
-			_, isCellClicker := players[i].Player.(ttt.CellClicker)
-			document.Body().SetInnerHTML(htmlg.Render(page{Board: board, Turn: players[i].Mark, Clickable: isCellClicker, Condition: condition, Players: players}.Render()...))
-			runtime.Gosched()
-		}
+		displayTurnStart(board, players, players[i], condition)
 
 		turnStart := time.Now()
 
 		err := playerTurn(&board, players[i], cellClick)
 		if err != nil {
-			if runtime.GOARCH == "js" {
-				// Draw page on error.
-				var document = dom.GetWindow().Document().(dom.HTMLDocument)
-				document.Body().SetInnerHTML(htmlg.Render(page{Board: board, ErrorMessage: err.Error(), Players: players}.Render()...))
-			}
-			return 0, err
+			displayError(board, players, err)
+			return
 		}
 
 		condition = board.Condition()
 
 		// Enforce a minimum of 1 second per turn.
 		if untilTurnEnd := time.Second - time.Since(turnStart); untilTurnEnd > 0 {
-			if runtime.GOARCH == "js" {
-				// Draw page after player finished turn.
-				var document = dom.GetWindow().Document().(dom.HTMLDocument)
-				document.Body().SetInnerHTML(htmlg.Render(page{Board: board, Condition: condition, Players: players}.Render()...))
-			}
+			displayTurnEnding(board, players, condition)
 
 			time.Sleep(untilTurnEnd)
 		}
-
-		fmt.Println()
-		fmt.Println(board)
 	}
 
 	// At this point, the game is over.
-	if runtime.GOARCH == "js" {
-		// Draw page on end of game.
-		var document = dom.GetWindow().Document().(dom.HTMLDocument)
-		document.Body().SetInnerHTML(htmlg.Render(page{Board: board, Condition: condition, Players: players}.Render()...))
-	}
-
-	return condition, nil
+	displayGameEnd(board, players, condition)
 }
 
 // playerTurn gets the player p's move and applies it to board b.
