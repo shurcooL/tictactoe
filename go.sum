@@ -1,0 +1,11 @@
+github.com/shurcooL/component v0.0.0-20190503025225-90263df59ff6 h1:R73zAA2oyxnjzfn/JahAuR7sVROSV7RCyfD4pc4TAro=
+github.com/shurcooL/component v0.0.0-20190503025225-90263df59ff6/go.mod h1:XhFIlyj5a1fBNx5aJTbKoIq0mNaPvOagO+HjB3EtxrY=
+github.com/shurcooL/htmlg v0.0.0-20190503024804-b6326af49ef6 h1:kXXs9Xnfv5gU7KLKiOE3AQgaRUUXchcXnO2rP3fZ5Ao=
+github.com/shurcooL/htmlg v0.0.0-20190503024804-b6326af49ef6/go.mod h1:zPn1wHpTIePGnXSHpsVPWEktKXHr6+SS6x/IKRb7cpw=
+golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
+golang.org/x/net v0.0.0-20190620200207-3b0461eec859 h1:R/3boaszxrf1GEUWTVDzSKVwLmSJpwZ1yqXm8j0v2QI=
+golang.org/x/net v0.0.0-20190620200207-3b0461eec859/go.mod h1:z5CRVTTTmAJ677TzLLGU+0bjPO0LkuOLi4/5GtJWs/s=
+golang.org/x/sys v0.0.0-20190215142949-d0b11bdaac8a/go.mod h1:STP8DvDyc/dI5b8T5hshtkjS+E42TnysNCUPdjciGhY=
+golang.org/x/text v0.3.0/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=
+honnef.co/go/js/dom/v2 v2.0.0-20190526011328-ebc4cf92d81f h1:rxpwPRn5voIeZmBGJvlhLwWo9fSZSciAAfHz6sAHGCY=
+honnef.co/go/js/dom/v2 v2.0.0-20190526011328-ebc4cf92d81f/go.mod h1:H5R0jAIe6IchQE778FS2QcrNVgS4vPFb0HPb72n/IJI=
