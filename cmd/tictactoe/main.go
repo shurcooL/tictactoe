@@ -21,7 +21,7 @@ import (
 // timePerTurn is the time each player gets to think per turn.
 const timePerTurn = 5 * time.Second
 
-func run() {
+func main() {
 	playerX := player{Mark: ttt.X}
 	playerO := player{Mark: ttt.O}
 

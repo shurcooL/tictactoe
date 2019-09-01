@@ -16,21 +16,10 @@ import (
 
 var document = dom.GetWindow().Document().(dom.HTMLDocument)
 
-func main() {
-	switch readyState := document.ReadyState(); readyState {
-	case "loading":
-		document.AddEventListener("DOMContentLoaded", false, func(dom.Event) {
-			go run()
-		})
-	case "interactive", "complete":
-		run()
-	default:
-		panic(fmt.Errorf("internal error: unexpected document.ReadyState value: %v", readyState))
-	}
-	select {}
-}
-
 func displayGameStart(board ttt.Board, players [2]player, cellClick chan<- int) {
+	// Wait for DOM to finish loading.
+	waitDOM()
+
 	document.SetTitle("Tic-Tac-Toe")
 
 	// When a board cell is clicked, send its [0, 9) index to cellClick channel.
@@ -58,11 +47,13 @@ func displayTurnEnding(board ttt.Board, players [2]player, condition ttt.Conditi
 func displayGameEnd(board ttt.Board, players [2]player, condition ttt.Condition) {
 	// Draw page at end of game.
 	document.Body().SetInnerHTML(htmlg.Render(page{Board: board, Condition: condition, Players: players}.Render()...))
+	select {}
 }
 
 func displayError(board ttt.Board, players [2]player, err error) {
 	// Draw page on error.
 	document.Body().SetInnerHTML(htmlg.Render(page{Board: board, ErrorMessage: err.Error(), Players: players}.Render()...))
+	select {}
 }
 
 // page renders the entire page body.
@@ -226,4 +217,14 @@ func style(style string, n *html.Node) *html.Node {
 	}
 	n.Attr = append(n.Attr, html.Attribute{Key: atom.Style.String(), Val: style})
 	return n
+}
+
+func waitDOM() {
+	if document.ReadyState() != "loading" {
+		// Already loaded.
+		return
+	}
+	var ch = make(chan struct{})
+	document.AddEventListener("DOMContentLoaded", false, func(dom.Event) { close(ch) })
+	<-ch
 }

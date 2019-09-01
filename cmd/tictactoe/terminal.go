@@ -8,10 +8,6 @@ import (
 	ttt "github.com/shurcooL/tictactoe"
 )
 
-func main() {
-	run()
-}
-
 func displayGameStart(board ttt.Board, players [2]player, cellClick chan<- int) {
 	fmt.Println("Tic-Tac-Toe")
 	fmt.Println()
