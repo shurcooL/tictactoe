@@ -8,6 +8,7 @@ package perfect
 import (
 	"context"
 	"fmt"
+	"html/template"
 	"math/rand"
 	"time"
 
@@ -28,6 +29,10 @@ type player struct {
 // Name of player.
 func (player) Name() string {
 	return "Perfect Player"
+}
+
+func (player) Image() template.URL {
+	return "https://raw.githubusercontent.com/shurcooL/tictactoe/master/player/perfect/gopher-fancy.png"
 }
 
 // Play takes a tic-tac-toe board b and returns the next move
