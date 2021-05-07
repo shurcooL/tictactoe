@@ -112,6 +112,9 @@ func (b *Board) Apply(move Move, mark State) error {
 	if b.Cells[move] != F {
 		return fmt.Errorf("that cell is already occupied")
 	}
+	if err := move.Valid(); err != nil {
+		return err
+	}
 
 	b.Cells[move] = mark
 	return nil
