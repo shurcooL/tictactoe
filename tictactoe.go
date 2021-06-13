@@ -37,9 +37,13 @@ type CellClicker interface {
 }
 
 // Move is the board cell index where to place one's mark, a value in range [0, 9).
+//
+// A move is valid if it's in the range [0, 9).
+// A move is legal if it can be applied to a given board configuration.
 type Move int
 
-// Valid reports if the move is valid. It may not be legal depending on the board configuration.
+// Valid reports if the move is valid.
+// A valid move may not be legal depending on the board configuration.
 func (m Move) Valid() error {
 	ok := m >= 0 && m < 9
 	if !ok {
@@ -106,7 +110,7 @@ type Board struct {
 }
 
 // Apply a move to this board. Mark is either X or O.
-// If it's not a legal, valid move, the board is not modified and an error is returned.
+// If the move is not valid or not legal, the board is not modified and an error is returned.
 func (b *Board) Apply(move Move, mark State) error {
 	if err := move.Valid(); err != nil {
 		return err

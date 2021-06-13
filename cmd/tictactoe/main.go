@@ -90,7 +90,7 @@ func playerTurn(b *ttt.Board, player player, cellClick <-chan int) error {
 
 	err = b.Apply(move, player.Mark)
 	if err != nil {
-		return fmt.Errorf("player %v (%s) made a move that isn't legal or isn't valid: %v", player.Mark, player.Name(), err)
+		return fmt.Errorf("player %v (%s) made a move that isn't valid or isn't legal: %v", player.Mark, player.Name(), err)
 	}
 
 	return nil
