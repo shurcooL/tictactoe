@@ -105,9 +105,12 @@ type Board struct {
 	Cells [9]State
 }
 
-// Apply a valid move to this board. Mark is either X or O.
-// If it's not a legal move, the board is not modified and the error is returned.
+// Apply a move to this board. Mark is either X or O.
+// If it's not a legal, valid move, the board is not modified and an error is returned.
 func (b *Board) Apply(move Move, mark State) error {
+	if err := move.Valid(); err != nil {
+		return err
+	}
 	// Check if the move is legal for this board configuration.
 	if b.Cells[move] != F {
 		return fmt.Errorf("that cell is already occupied")
